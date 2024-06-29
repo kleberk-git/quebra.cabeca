@@ -44,31 +44,6 @@ async function iniciarCamera() {
     }
 }
 
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream) {
-                videoElement.srcObject = stream;
-                document.getElementById('camera-feed').appendChild(videoElement);
-                document.getElementById('camera-feed').style.display = 'flex';
-                
-                // Cria o leitor QR Code após a inicialização da câmera
-                const config = {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                };
-                html5QrCode = new Html5Qrcode("reader");
-                html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess)
-                    .catch(err => console.error("Erro ao iniciar a leitura de QR Code", err));
-            })
-            .catch(function(err) {
-                console.error('Erro ao acessar a câmera: ', err);
-                alert('Não foi possível acessar a câmera. Verifique suas permissões ou tente em outro navegador.');
-            });
-    } catch (error) {
-        console.error('Erro ao acessar a câmera:', error);
-        alert('Não foi possível acessar a câmera. Verifique suas permissões ou tente em outro navegador.');
-    }
-}
-
 function onScanSuccess(decodedText, decodedResult) {
     if (imageParts.hasOwnProperty(decodedText)) {
         if (!localStorage.getItem(decodedText)) {
@@ -117,7 +92,7 @@ document.getElementById('close-camera').addEventListener('click', () => {
         const tracks = stream.getTracks();
         tracks.forEach(track => track.stop());
     }
-    
+
     if (html5QrCode) {
         html5QrCode.stop().then(ignore => {
             console.log("Leitura de QR Code parada com sucesso");
