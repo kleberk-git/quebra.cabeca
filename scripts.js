@@ -8,6 +8,45 @@ const imageParts = {
 const seloCampeao = 'selo-campeao.jpg'; // caminho da imagem do selo
 let html5QrCode; // Variável para armazenar a instância do leitor QR Code
 
+async function iniciarCamera() {
+    try {
+        const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const videoElement = document.createElement('video');
+        videoElement.setAttribute('autoplay', '');
+        videoElement.setAttribute('playsinline', '');
+        videoElement.srcObject = videoStream;
+
+        const constraints = {
+            video: {
+                facingMode: 'environment' // 'user' para câmera frontal
+            }
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                videoElement.srcObject = stream;
+                document.getElementById('camera-feed').appendChild(videoElement);
+                document.getElementById('camera-feed').style.display = 'flex';
+                
+                // Cria o leitor QR Code após a inicialização da câmera
+                const config = {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                };
+                html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess)
+                    .catch(err => console.error("Erro ao iniciar a leitura de QR Code", err));
+            })
+            .catch(function(err) {
+                console.error('Erro ao acessar a câmera: ', err);
+                alert('Não foi possível acessar a câmera. Verifique suas permissões ou tente em outro navegador.');
+            });
+    } catch (error) {
+        console.error('Erro ao acessar a câmera:', error);
+        alert('Não foi possível acessar a câmera. Verifique suas permissões ou tente em outro navegador.');
+    }
+}
+
 function onScanSuccess(decodedText, decodedResult) {
     if (imageParts.hasOwnProperty(decodedText)) {
         if (!localStorage.getItem(decodedText)) {
@@ -47,37 +86,7 @@ function verificarConclusao() {
     return false;
 }
 
-document.getElementById('scan-button').addEventListener('click', () => {
-    const videoElement = document.createElement('video');
-    videoElement.setAttribute('autoplay', '');
-    videoElement.setAttribute('playsinline', '');
-
-    const constraints = {
-        video: {
-            facingMode: 'environment' // 'user' para câmera frontal
-        }
-    };
-
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(function(stream) {
-            videoElement.srcObject = stream;
-            document.getElementById('camera-feed').appendChild(videoElement);
-            document.getElementById('camera-feed').style.display = 'flex';
-            
-            // Cria o leitor QR Code após a inicialização da câmera
-            const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 }
-            };
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess)
-                .catch(err => console.error("Erro ao iniciar a leitura de QR Code", err));
-        })
-        .catch(function(err) {
-            console.error('Erro ao acessar a câmera: ', err);
-            alert('Não foi possível acessar a câmera. Verifique suas permissões ou tente em outro navegador.');
-        });
-});
+document.getElementById('scan-button').addEventListener('click', iniciarCamera);
 
 document.getElementById('close-camera').addEventListener('click', () => {
     const videoElement = document.querySelector('video');
@@ -123,4 +132,3 @@ window.onload = function() {
 window.onbeforeunload = function() {
     return "Você tem certeza que quer sair? Todo o progresso será perdido.";
 };
-
