@@ -102,3 +102,8 @@ window.onload = function() {
 window.onbeforeunload = function() {
     return "Você tem certeza que quer sair? Todo o progresso será perdido.";
 };
+const messageBubble = document.getElementById('message-bubble');
+
+messageBubble.addEventListener('click', () => {
+    messageBubble.style.display = 'none';
+});
