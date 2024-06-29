@@ -147,3 +147,35 @@ body::before {
     background: linear-gradient(135deg, #ff0099 0%, #493240 100%);
     z-index: -1;
 }
+
+.message-bubble {
+    position: fixed;
+    top: 20px;
+    left: calc(50% - 100px);
+    width: 200px;
+    padding: 10px;
+    background-color: #ff0099;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 1;
+    z-index: 1000;
+    display: none;
+}
+
+.message-bubble p {
+    margin: 0;
+}
+
+@keyframes fadeInUp {
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
