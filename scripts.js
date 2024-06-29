@@ -1,3 +1,5 @@
+// scripts.js
+
 const imageParts = {
     'imagem1': 'parte1.jpg',
     'imagem2': 'parte2.jpg',
@@ -26,7 +28,7 @@ async function iniciarCamera() {
         // Aguarda até que o vídeo esteja carregado antes de mostrar
         videoElement.onloadedmetadata = () => {
             document.getElementById('camera-feed').appendChild(videoElement);
-            document.getElementById('qr-reader-container').style.display = 'flex';
+            document.getElementById('camera-feed').style.display = 'flex';
         };
 
         // Cria o leitor QR Code após a inicialização da câmera
@@ -101,7 +103,7 @@ document.getElementById('close-camera').addEventListener('click', () => {
         });
     }
 
-    document.getElementById('qr-reader-container').style.display = 'none';
+    document.getElementById('camera-feed').style.display = 'none';
 });
 
 document.getElementById('download-button').addEventListener('click', () => {
@@ -129,3 +131,22 @@ window.onload = function() {
 window.onbeforeunload = function() {
     return "Você tem certeza que quer sair? Todo o progresso será perdido.";
 };
+
+// Função para adicionar imagem manualmente ao clicar no slot
+document.querySelectorAll('.image-slot').forEach(slot => {
+    slot.addEventListener('click', function() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                slot.style.backgroundImage = `url(${event.target.result})`;
+                slot.style.color = 'transparent';
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    });
+});
