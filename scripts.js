@@ -26,7 +26,7 @@ async function iniciarCamera() {
         // Aguarda até que o vídeo esteja carregado antes de mostrar
         videoElement.onloadedmetadata = () => {
             document.getElementById('camera-feed').appendChild(videoElement);
-            document.getElementById('camera-feed').style.display = 'flex';
+            document.getElementById('qr-reader-container').style.display = 'flex';
         };
 
         // Cria o leitor QR Code após a inicialização da câmera
@@ -92,7 +92,7 @@ document.getElementById('close-camera').addEventListener('click', () => {
         const tracks = stream.getTracks();
         tracks.forEach(track => track.stop());
     }
-
+    
     if (html5QrCode) {
         html5QrCode.stop().then(ignore => {
             console.log("Leitura de QR Code parada com sucesso");
@@ -101,7 +101,7 @@ document.getElementById('close-camera').addEventListener('click', () => {
         });
     }
 
-    document.getElementById('camera-feed').style.display = 'none';
+    document.getElementById('qr-reader-container').style.display = 'none';
 });
 
 document.getElementById('download-button').addEventListener('click', () => {
