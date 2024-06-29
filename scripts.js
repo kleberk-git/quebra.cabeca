@@ -48,17 +48,30 @@ function verificarConclusao() {
 }
 
 document.getElementById('scan-button').addEventListener('click', () => {
-    document.getElementById('camera-feed').style.display = 'flex';
+    const videoElement = document.createElement('video');
+    videoElement.setAttribute('autoplay', '');
+    videoElement.setAttribute('playsinline', '');
 
     const constraints = {
-        video: true
+        video: {
+            facingMode: 'environment' // 'user' para câmera frontal
+        }
     };
 
     navigator.mediaDevices.getUserMedia(constraints)
         .then(function(stream) {
-            const video = document.getElementById('video');
-            video.srcObject = stream;
-            video.play();
+            videoElement.srcObject = stream;
+            document.getElementById('camera-feed').appendChild(videoElement);
+            document.getElementById('camera-feed').style.display = 'flex';
+            
+            // Cria o leitor QR Code após a inicialização da câmera
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            };
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess)
+                .catch(err => console.error("Erro ao iniciar a leitura de QR Code", err));
         })
         .catch(function(err) {
             console.error('Erro ao acessar a câmera: ', err);
@@ -67,9 +80,21 @@ document.getElementById('scan-button').addEventListener('click', () => {
 });
 
 document.getElementById('close-camera').addEventListener('click', () => {
-    const video = document.getElementById('video');
-    video.pause();
-    video.srcObject.getTracks()[0].stop();
+    const videoElement = document.querySelector('video');
+    if (videoElement && videoElement.srcObject) {
+        const stream = videoElement.srcObject;
+        const tracks = stream.getTracks();
+        tracks.forEach(track => track.stop());
+    }
+    
+    if (html5QrCode) {
+        html5QrCode.stop().then(ignore => {
+            console.log("Leitura de QR Code parada com sucesso");
+        }).catch(err => {
+            console.error("Erro ao parar a leitura de QR Code", err);
+        });
+    }
+
     document.getElementById('camera-feed').style.display = 'none';
 });
 
