@@ -6,6 +6,7 @@ const imageParts = {
 };
 
 const seloCampeao = 'selo-campeao.jpg'; // caminho da imagem do selo
+let html5QrCode; // Variável para armazenar a instância do leitor QR Code
 
 function onScanSuccess(decodedText, decodedResult) {
     if (imageParts.hasOwnProperty(decodedText)) {
@@ -46,35 +47,30 @@ function verificarConclusao() {
     return false;
 }
 
-document.getElementById('start-button').addEventListener('click', () => {
-    document.getElementById('qr-reader-container').style.display = 'block';
-    
-    const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 }
+document.getElementById('scan-button').addEventListener('click', () => {
+    document.getElementById('camera-feed').style.display = 'flex';
+
+    const constraints = {
+        video: true
     };
 
-    const html5QrCode = new Html5Qrcode("reader");
-
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const facingMode = isMobile ? { facingMode: "environment" } : { facingMode: "user" };
-
-    html5QrCode.start(
-        facingMode,
-        config,
-        onScanSuccess
-    ).catch(err => {
-        console.error("Erro ao iniciar a leitura de QR Code", err);
-    });
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(stream) {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(err) {
+            console.error('Erro ao acessar a câmera: ', err);
+            alert('Não foi possível acessar a câmera. Verifique suas permissões ou tente em outro navegador.');
+        });
 });
 
-document.getElementById('close-reader').addEventListener('click', () => {
-    document.getElementById('qr-reader-container').style.display = 'none';
-    html5QrCode.stop().then(ignore => {
-        // Parou a leitura com sucesso
-    }).catch(err => {
-        console.error("Erro ao parar a leitura de QR Code", err);
-    });
+document.getElementById('close-camera').addEventListener('click', () => {
+    const video = document.getElementById('video');
+    video.pause();
+    video.srcObject.getTracks()[0].stop();
+    document.getElementById('camera-feed').style.display = 'none';
 });
 
 document.getElementById('download-button').addEventListener('click', () => {
@@ -97,13 +93,9 @@ window.onload = function() {
         }
     }
     verificarConclusao();
-}
+};
 
 window.onbeforeunload = function() {
     return "Você tem certeza que quer sair? Todo o progresso será perdido.";
 };
-const messageBubble = document.getElementById('message-bubble');
 
-messageBubble.addEventListener('click', () => {
-    messageBubble.style.display = 'none';
-});
