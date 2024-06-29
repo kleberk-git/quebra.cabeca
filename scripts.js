@@ -86,7 +86,7 @@ function verificarConclusao() {
     return false;
 }
 
-document.getElementById('scan-button').addEventListener('click', iniciarCamera);
+document.getElementById('start-button').addEventListener('click', iniciarCamera);
 
 document.getElementById('close-camera').addEventListener('click', () => {
     const videoElement = document.querySelector('video');
