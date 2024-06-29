@@ -10,17 +10,39 @@ let html5QrCode; // Variável para armazenar a instância do leitor QR Code
 
 async function iniciarCamera() {
     try {
-        const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const videoElement = document.createElement('video');
         videoElement.setAttribute('autoplay', '');
         videoElement.setAttribute('playsinline', '');
-        videoElement.srcObject = videoStream;
 
         const constraints = {
             video: {
                 facingMode: 'environment' // 'user' para câmera frontal
             }
         };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoElement.srcObject = stream;
+
+        // Aguarda até que o vídeo esteja carregado antes de mostrar
+        videoElement.onloadedmetadata = () => {
+            document.getElementById('camera-feed').appendChild(videoElement);
+            document.getElementById('camera-feed').style.display = 'flex';
+        };
+
+        // Cria o leitor QR Code após a inicialização da câmera
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+        };
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess)
+            .catch(err => console.error("Erro ao iniciar a leitura de QR Code", err));
+
+    } catch (error) {
+        console.error('Erro ao acessar a câmera:', error);
+        alert('Não foi possível acessar a câmera. Verifique suas permissões ou tente em outro navegador.');
+    }
+}
 
         navigator.mediaDevices.getUserMedia(constraints)
             .then(function(stream) {
