@@ -9,6 +9,8 @@ const imageParts = {
 
 const seloCampeao = 'selo-campeao.jpg'; // caminho da imagem do selo
 let html5QrCode; // Variável para armazenar a instância do leitor QR Code
+let currentSlotIndex = 0;
+const slots = ['slot1', 'slot2', 'slot3', 'slot4'];
 
 async function iniciarCamera() {
     try {
@@ -29,16 +31,9 @@ async function iniciarCamera() {
         videoElement.onloadedmetadata = () => {
             document.getElementById('camera-feed').appendChild(videoElement);
             document.getElementById('camera-feed').style.display = 'flex';
+            document.getElementById('capture-button').style.display = 'block';
+            document.getElementById('close-camera').style.display = 'block';
         };
-
-        // Cria o leitor QR Code após a inicialização da câmera
-        const config = {
-            fps: 10,
-            qrbox: { width: 250, height: 250 }
-        };
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess)
-            .catch(err => console.error("Erro ao iniciar a leitura de QR Code", err));
 
     } catch (error) {
         console.error('Erro ao acessar a câmera:', error);
@@ -46,38 +41,29 @@ async function iniciarCamera() {
     }
 }
 
-function onScanSuccess(decodedText, decodedResult) {
-    if (imageParts.hasOwnProperty(decodedText)) {
-        if (!localStorage.getItem(decodedText)) {
-            localStorage.setItem(decodedText, 'encontrada');
-            mostrarParteImagem(decodedText);
-        } else {
-            alert('Você já encontrou esta parte!');
+function capturarImagem() {
+    const videoElement = document.querySelector('video');
+    if (videoElement) {
+        const canvas = document.createElement('canvas');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL('image/png');
+
+        if (currentSlotIndex < slots.length) {
+            const slot = document.getElementById(slots[currentSlotIndex]);
+            slot.style.backgroundImage = `url(${dataURL})`;
+            slot.style.color = 'transparent';
+            currentSlotIndex++;
         }
-    } else {
-        alert('QR Code não reconhecido!');
+
+        verificarConclusao();
     }
-
-    verificarConclusao();
-}
-
-function mostrarParteImagem(imagem) {
-    const slotId = `slot${Object.keys(imageParts).indexOf(imagem) + 1}`;
-    const slot = document.getElementById(slotId);
-    slot.style.backgroundImage = `url(${imageParts[imagem]})`;
-    slot.style.color = 'transparent';
 }
 
 function verificarConclusao() {
-    let allFound = true;
-    for (let key in imageParts) {
-        if (!localStorage.getItem(key)) {
-            allFound = false;
-            break;
-        }
-    }
-
-    if (allFound) {
+    if (currentSlotIndex >= slots.length) {
         document.getElementById('message').innerText = 'Parabéns! Você encontrou todas as partes!';
         document.getElementById('download-button').disabled = false;
         return true;
@@ -87,6 +73,8 @@ function verificarConclusao() {
 
 document.getElementById('start-button').addEventListener('click', iniciarCamera);
 
+document.getElementById('capture-button').addEventListener('click', capturarImagem);
+
 document.getElementById('close-camera').addEventListener('click', () => {
     const videoElement = document.querySelector('video');
     if (videoElement && videoElement.srcObject) {
@@ -95,15 +83,9 @@ document.getElementById('close-camera').addEventListener('click', () => {
         tracks.forEach(track => track.stop());
     }
     
-    if (html5QrCode) {
-        html5QrCode.stop().then(ignore => {
-            console.log("Leitura de QR Code parada com sucesso");
-        }).catch(err => {
-            console.error("Erro ao parar a leitura de QR Code", err);
-        });
-    }
-
     document.getElementById('camera-feed').style.display = 'none';
+    document.getElementById('capture-button').style.display = 'none';
+    document.getElementById('close-camera').style.display = 'none';
 });
 
 document.getElementById('download-button').addEventListener('click', () => {
@@ -127,6 +109,11 @@ window.onload = function() {
     }
     verificarConclusao();
 };
+
+window.onbeforeunload = function() {
+    return "Você tem certeza que quer sair? Todo o progresso será perdido.";
+};
+
 
 window.onbeforeunload = function() {
     return "Você tem certeza que quer sair? Todo o progresso será perdido.";
