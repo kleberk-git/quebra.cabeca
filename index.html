@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desafio do Quebra-Cabeça QR Code</title>
+    <title>QR Code Game</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="game-container">
-        <h1>Desafio do Quebra-Cabeça QR Code</h1>
-        <button id="start-button" class="btn"><i class="fas fa-camera"></i> Iniciar Leitura QR Code</button>
-        <div id="reader" class="qr-reader"></div>
+        <h1>QR Code Game</h1>
+        <button id="start-button" class="btn">Iniciar Câmera</button>
         <div id="arena">
-            <div class="image-slot" id="slot1">1</div>
-            <div class="image-slot" id="slot2">2</div>
-            <div class="image-slot" id="slot3">3</div>
-            <div class="image-slot" id="slot4">4</div>
-        </div><br>
+            <div id="slot1" class="image-slot">1</div>
+            <div id="slot2" class="image-slot">2</div>
+            <div id="slot3" class="image-slot">3</div>
+            <div id="slot4" class="image-slot">4</div>
+        </div>
+        <p class="message" id="message"></p>
         <button id="download-button" class="btn" disabled>Baixar Selo de Campeão</button>
-        <div class="message" id="message"></div>
     </div>
-    <footer>
-        @Kleber Belo
-    </footer>
+    <footer>@Kleber Belo</footer>
+
+    <div id="qr-reader-container">
+        <div id="reader" class="qr-reader"></div>
+        <button id="close-reader" class="btn">Fechar</button>
+    </div>
+
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <script src="scripts.js"></script>
 </body>

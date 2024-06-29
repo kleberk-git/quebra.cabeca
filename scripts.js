@@ -41,11 +41,13 @@ function verificarConclusao() {
     if (allFound) {
         document.getElementById('message').innerText = 'Parabéns! Você encontrou todas as partes!';
         document.getElementById('download-button').disabled = false;
+        return true;
     }
+    return false;
 }
 
 document.getElementById('start-button').addEventListener('click', () => {
-    document.getElementById('reader').style.display = 'block';
+    document.getElementById('qr-reader-container').style.display = 'block';
     
     const config = {
         fps: 10,
@@ -54,9 +56,8 @@ document.getElementById('start-button').addEventListener('click', () => {
 
     const html5QrCode = new Html5Qrcode("reader");
 
-    // Detecta o tipo de dispositivo para escolher a câmera apropriada
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const facingMode = isMobile ? { facingMode: "environment" } : undefined;
+    const facingMode = isMobile ? { facingMode: "environment" } : { facingMode: "user" };
 
     html5QrCode.start(
         facingMode,
@@ -64,6 +65,15 @@ document.getElementById('start-button').addEventListener('click', () => {
         onScanSuccess
     ).catch(err => {
         console.error("Erro ao iniciar a leitura de QR Code", err);
+    });
+});
+
+document.getElementById('close-reader').addEventListener('click', () => {
+    document.getElementById('qr-reader-container').style.display = 'none';
+    html5QrCode.stop().then(ignore => {
+        // Parou a leitura com sucesso
+    }).catch(err => {
+        console.error("Erro ao parar a leitura de QR Code", err);
     });
 });
 
